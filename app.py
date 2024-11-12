@@ -1,28 +1,42 @@
-# app.py
-from flask import Flask
-from uuid import UUID
+from flask import Flask, render_template, request
+from config.config import CassandraConfig
+from data.data_loader import DataLoader
 
 app = Flask(__name__)
 
-# Import CRUD functions
-from crud import create_user, get_user, list_users, delete_user
+cassandra_config = CassandraConfig()
+session = cassandra_config.connect()
 
-# Routes
-@app.route('/users', methods=['POST'])
-def create_user_route():
-    return create_user()
+# Initialize DataLoader and create table
+# data_loader = DataLoader(session)
+# data_loader.create_table()
+# Uncomment the line below to load data from JSON once
+# data_loader.load_from_json('data/dataset.json')
 
-@app.route('/users/<uuid:user_id>', methods=['GET'])
-def get_user_route(user_id: UUID):
-    return get_user(user_id)
+# Query functions
+def get_pokemon_by_name(name):
+    return session.execute("SELECT * FROM pokemon WHERE name = %s", (name,))
 
-@app.route('/users', methods=['GET'])
-def list_users_route():
-    return list_users()
+def get_pokemon_by_type(p_type):
+    return session.execute("SELECT * FROM pokemon WHERE type CONTAINS %s", (p_type,))
 
-@app.route('/users/<uuid:user_id>', methods=['DELETE'])
-def delete_user_route(user_id: UUID):
-    return delete_user(user_id)
+# Flask Routes
+@app.route('/')
+def home():
+    return render_template('search.html')
 
-if __name__ == '__main__':
+@app.route('/search', methods=['POST'])
+def search():
+    name = request.form.get('name')
+    p_type = request.form.get('type')
+    
+    results = []
+    if name:
+        results = get_pokemon_by_name(name)
+    elif p_type:
+        results = get_pokemon_by_type(p_type)
+    
+    return render_template('results.html', results=results)
+
+if __name__ == "__main__":
     app.run(debug=True)

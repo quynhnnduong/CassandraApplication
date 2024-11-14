@@ -7,26 +7,36 @@ class DataLoader:
     def create_table(self):
         self.session.execute("""
         CREATE TABLE IF NOT EXISTS pokemon (
-            name TEXT PRIMARY KEY,
-            type TEXT,
-            species TEXT,
-            height FLOAT,
-            weight FLOAT,
-            abilities TEXT,
-            base_hp INT,
-            base_attack INT,
-            base_defense INT,
-            base_speed INT
-        )
+            pokemon text PRIMARY KEY,
+            type text,
+            species text,
+            height list<text>,
+            weight list<text>,
+            abilities list<text>,
+            ev_yield text,
+            catch_rate text,
+            base_friendship list<text>,
+            base_exp int,
+            growth_rate text,
+            egg_groups text,
+            gender text,
+            egg_cycles text,
+            hp_base int,
+            hp_min int,
+            hp_max int,
+            attack_base int,
+            attack_min int,
+            attack_max int,
+            defense_base int,
+            defense_min int,
+            defense_max int,
+            special_attack_base int,
+            special_attack_min int,
+            special_attack_max int,
+            special_defense_base int,
+            special_defense_min int,
+            special_defense_max int,
+            speed_base int,
+            speed_min int,
+            speed_max int)
         """)
-
-    def load_from_csv(self, file_path):
-        with open(file_path, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                self.session.execute("""
-                INSERT INTO pokemon (name, type, species, height, weight, abilities, base_hp, base_attack, base_defense, base_speed)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (row['Pokemon'], row['Type'], row['Species'], float(row['Height']),
-                      float(row['Weight']), row['Abilities'], int(row['Base HP']),
-                      int(row['Base Attack']), int(row['Base Defense']), int(row['Base Speed'])))

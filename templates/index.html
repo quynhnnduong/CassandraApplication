@@ -1,0 +1,58 @@
+<form id="search-form">
+    <label for="name">Pokémon Name:</label>
+    <input type="text" id="name" name="name" placeholder="Enter Pokémon name">
+
+    <label for="type">Pokémon Type:</label>
+    <input type="text" id="type" name="type" placeholder="Enter Pokémon type">
+
+    <button type="button" id="search-button">Search</button>
+</form>
+
+<div id="results"></div>
+
+<script>
+    document.getElementById('search-button').addEventListener('click', async () => {
+        const name = document.getElementById('name').value;
+        const type = document.getElementById('type').value;
+
+        const response = await fetch('/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, type })
+        });
+
+        const results = await response.json();
+        displayResults(results);
+    });
+
+    function displayResults(results) {
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
+        if (results.length > 0) {
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Attack</th>
+                    <th>Defense</th>
+                    <th>HP</th>
+                </tr>
+            `;
+            results.forEach(row => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${row.pokemon}</td>
+                        <td>${row.type}</td>
+                        <td>${row.attack_base}</td>
+                        <td>${row.defense_base}</td>
+                        <td>${row.hp_base}</td>
+                    </tr>
+                `;
+            });
+            resultsDiv.appendChild(table);
+        } else {
+            resultsDiv.innerHTML = '<p>No results found.</p>';
+        }
+    }
+</script>

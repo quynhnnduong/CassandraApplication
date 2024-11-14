@@ -8,14 +8,11 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    # Initialize Cassandra connection
     cassandra_config = CassandraConfig()
     session = cassandra_config.connect()
 
-    # Initialize and register routes
     init_routes(app, session)
 
-    # Optional: Health check route
     @app.route('/health', methods=['GET'])
     def health_check():
         return jsonify({"status": "OK"}), 200

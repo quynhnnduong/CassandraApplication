@@ -1,42 +1,27 @@
-from flask import Flask, render_template, request
+from flask import Flask, jsonify
 from config.config import CassandraConfig
-from data.data_loader import DataLoader
+from routes import init_routes
+from cassandra.cluster import Session
+from flask_cors import CORS
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
 
-cassandra_config = CassandraConfig()
-session = cassandra_config.connect()
+    # Initialize Cassandra connection
+    cassandra_config = CassandraConfig()
+    session = cassandra_config.connect()
 
-# Initialize DataLoader and create table
-# data_loader = DataLoader(session)
-# data_loader.create_table()
-# Uncomment the line below to load data from JSON once
-# data_loader.load_from_json('data/dataset.json')
+    # Initialize and register routes
+    init_routes(app, session)
 
-# Query functions
-def get_pokemon_by_name(name):
-    return session.execute("SELECT * FROM pokemon WHERE name = %s", (name,))
+    # Optional: Health check route
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        return jsonify({"status": "OK"}), 200
 
-def get_pokemon_by_type(p_type):
-    return session.execute("SELECT * FROM pokemon WHERE type CONTAINS %s", (p_type,))
-
-# Flask Routes
-@app.route('/')
-def home():
-    return render_template('search.html')
-
-@app.route('/search', methods=['POST'])
-def search():
-    name = request.form.get('name')
-    p_type = request.form.get('type')
-    
-    results = []
-    if name:
-        results = get_pokemon_by_name(name)
-    elif p_type:
-        results = get_pokemon_by_type(p_type)
-    
-    return render_template('results.html', results=results)
+    return app
 
 if __name__ == "__main__":
+    app = create_app()
     app.run(debug=True)

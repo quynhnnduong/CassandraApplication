@@ -1,3 +1,5 @@
+import random
+from datetime import datetime
 from cassandra.cluster import Session
 
 def create_pokemon(session: Session, pokemon_data: dict):
@@ -24,3 +26,15 @@ def create_pokemon(session: Session, pokemon_data: dict):
         pokemon_data['speed_base'], pokemon_data['speed_min'], pokemon_data['speed_max']
     ))
     return {"message": f"Pokemon {pokemon_data['pokemon']} created successfully."}
+
+def randomize_pokemon(session: Session):
+    pokemon = session.execute("SELECT * FROM pokemon LIMIT 1 ALLOW FILTERING").one()
+    if not pokemon:
+        return None
+
+    # Randomize stats
+    random_factor = random.randint(1, 10)
+    pokemon.attack_base = pokemon.attack_base + random_factor
+    pokemon.hp_base = pokemon.hp_base + random_factor
+    pokemon.pokemon += datetime.now
+    create_pokemon(session, pokemon)

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from crud.insert import create_pokemon
+from crud.insert import randomize_pokemon
 from cassandra.cluster import Session
 
 pokemon_insert = Blueprint('pokemon_insert', __name__, url_prefix='/api/pokemon')
@@ -71,3 +72,15 @@ def register_pokemon_insert_routes(session: Session):
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    @pokemon_insert.route('/rand_insert', methods=['POST'])
+    def post_random_pokemon():
+        """
+        Insert a random pokemon
+        Example:
+        POST /api/pokemon/rand_insert
+        """
+        rows = randomize_pokemon(session)
+        results = [row._asdict() for row in rows]
+
+        return jsonify(results)

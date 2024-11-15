@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 from cassandra.cluster import Session
 
 def create_pokemon(session: Session, pokemon_data: dict):
@@ -36,5 +35,5 @@ def randomize_pokemon(session: Session):
     random_factor = random.randint(1, 10)
     pokemon.attack_base = pokemon.attack_base + random_factor
     pokemon.hp_base = pokemon.hp_base + random_factor
-    pokemon.pokemon += datetime.now
+    pokemon.pokemon += str(random.randint(1,1000000000))
     create_pokemon(session, pokemon)

@@ -73,12 +73,12 @@ def register_pokemon_insert_routes(session: Session):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         
-    @pokemon_insert.route('/rand_insert', methods=['POST'])
+    @pokemon_insert.route('/rand_insert', methods=['GET'])
     def post_random_pokemon():
         """
         Insert a random pokemon
         Example:
-        POST /api/pokemon/rand_insert
+        /api/pokemon/rand_insert
         """
         rows = randomize_pokemon(session)
         results = [row._asdict() for row in rows]

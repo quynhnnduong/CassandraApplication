@@ -27,13 +27,13 @@ def create_pokemon(session: Session, pokemon_data: dict):
     return {"message": f"Pokemon {pokemon_data['pokemon']} created successfully."}
 
 def randomize_pokemon(session: Session):
-    pokemon = session.execute("SELECT * FROM pokemon LIMIT 1 ALLOW FILTERING").one()
+    pokemon = session.execute("SELECT * FROM pokemon LIMIT 1 ALLOW FILTERING").one()._asdict()
     if not pokemon:
         return None
 
     # Randomize stats
     random_factor = random.randint(1, 10)
-    pokemon.attack_base = pokemon.attack_base + random_factor
-    pokemon.hp_base = pokemon.hp_base + random_factor
-    pokemon.pokemon += str(random.randint(1,1000000000))
+    pokemon['attack_base'] = pokemon['attack_base'] + random_factor
+    pokemon['hp_base'] = pokemon['hp_base'] + random_factor
+    pokemon['pokemon'] += str(random.randint(1,1000000000))
     create_pokemon(session, pokemon)
